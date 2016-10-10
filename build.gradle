@@ -1,0 +1,35 @@
+plugins {
+    id "com.github.maiflai.scalatest" version "0.14"
+}
+
+apply plugin: 'java'
+apply plugin: 'scala'
+apply plugin: 'com.github.maiflai.scalatest'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'org.scala-lang',    name: 'scala-library-all',      version: '2.11.8'
+    compile group: 'org.slf4j',         name: 'slf4j-api',              version: '1.7.13'
+    compile group: 'org.clapper',       name: 'grizzled-slf4j_2.11',    version: '1.0.3'
+    compile group: 'org.javassist',     name: 'javassist',              version: '3.20.0-GA'
+
+    testCompile project(":test-data")
+    testCompile group: 'org.scalatest',     name: 'scalatest_2.11',         version: '3.0.0'
+    testCompile group: 'org.clapper',       name: 'avsl_2.11',              version: '1.0.10'
+    testRuntime group: 'org.pegdown',       name: 'pegdown',                version: '1.6.0'
+}
+
+task checkTestRunDir() {
+    mkdir 'build/test-run'
+}
+
+task copyTestJar(dependsOn: [':test-data:jar', checkTestRunDir], type: Copy) {
+    from tasks.getByPath(':test-data:jar')
+    into 'build/test-run/'
+}
+
+test.dependsOn copyTestJar
+test.workingDir = 'build/test-run'
