@@ -4,7 +4,7 @@ plugins {
 
 apply plugin: 'java'
 apply plugin: 'scala'
-apply plugin: 'com.github.maiflai.scalatest'
+apply plugin: 'maven-publish' 
 
 repositories {
     mavenCentral()
@@ -21,6 +21,43 @@ dependencies {
     testCompile group: 'org.clapper',       name: 'avsl_2.11',              version: '1.0.10'
     testRuntime group: 'org.pegdown',       name: 'pegdown',                version: '1.6.0'
 }
+
+
+task scaladocJar(type: Jar) {
+    classifier = 'scaladoc'
+    from scaladoc
+}
+
+task sourceJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.scala
+}
+
+assemble.dependsOn scaladocJar
+assemble.dependsOn sourceJar
+
+artifacts {
+    archives jar
+    archives scaladocJar 
+    archives sourceJar
+}
+
+publishing {
+    publications {
+        maven (MavenPublication) {
+            groupId     'info.hargrave.scalassist'
+            artifactId  'scalassist_2.11'
+            version     '1.0'
+
+            from    components.java
+            artifact scaladocJar
+            artifact sourceJar
+        }
+    }
+}
+
+// Test
+// ============================================================================
 
 task checkTestRunDir() {
     mkdir 'build/test-run'
